@@ -1,0 +1,161 @@
+==================================================
+MSSR [Microsoft specific]:
+==================================================
+
+Used for repair process in service locations available globally. Process contains CP-RSP (Collection Point to Repair Service Partner) flow.
+
+Language built in:		VB.net
+DB server:			SQL Server
+OEMs available:		Microsoft
+Git link:			https://git.b2xcare.com/ravibhalala/MSSRLIVE
+Default user password:	Zew#ub#qC7
+Logs maintained in:		SQL server
+
+-----------------
+Project Locations:
+-----------------
+a. UAT:
+	(Used by tester for testing)
+	Windows server IP:				10.0.2.250
+	Path:							D:\IMO\Project\Dev
+	Git branch name:				uat
+	IIS application pool name:		MSSRTest
+	Project URL:					https://testmssr.b2xcare.com/MSSRTest/Login.aspx
+	
+b. PROD:
+	(Used by end consumers)
+	Windows server IP:				10.0.2.250
+	Path:							D:\IMO\Project\LIVE
+	Git branch name:				prod
+	IIS application pool name:		smartrepair
+	Project URL:					https://mssr.b2xcare.com/smartrepair/Login.aspx
+	
+c. MASTER (default):
+	(Used by developers)
+	Path:					local machine path
+	Git branch name:		master
+
+	
+-----------------
+SQL server config:
+-----------------
+a. UAT:
+	"user": "ap-MSSR",
+	"password": "sysboss@123",
+	"server": "10.0.2.250",
+	"database": "MSSRTest"
+
+b. PROD:
+	"user": "Enaio",
+	"password": "D4X57vIR",
+	"server": "srrds.c5ujuajkq1en.eu-west-1.rds.amazonaws.com",
+	"database": "MSSRLive"
+
+
+-----------------
+Integrations done in this project:
+-----------------
+a. IMO-API (Microsoft specific) project for job creation (createReturn), order shipment (updateEvent) and process return.
+b. Smart logistic's APIs for generating labels while dispatching devices from one location to another as well as for tracking of the dispatched devices.
+c. EM Microsoft API for warranty validation of the devices.
+d. Consumer portal API for some APIs like job status, resend/regenerate emails, etc.
+
+
+-----------------
+Practice / Points to be followed by developer/TL:
+-----------------
+a. Commit code on the respective GIT branches before publishing.
+b. Whenever an external API is to be called, create a new .vb file under MSSR/MSSR/Api/ folder and follow the coding standards.
+c. Add try catch block so that exception can be logged into database.
+d. If any changes has to be made where only .html or .config changes are to be made then there is no need to build the project and publish the same DLL on server. Instead we can directly add to (.html or .config) code changes on server and just reload the pool. For .vb files we will have to build & publish the code then generate DLL files will be generated we we have to publish on the respective server. Remember to commit the changes on git branch.
+
+
+---------------------------
+Important tables used in the system:
+---------------------------
+
+------------------
+a. Error tables:--- (Can be used to identify the error/exception if any) 
+-------------------
+- mstOrderCreationError:
+	Stores error code along with the error message at the time of order/job creation, order shipment or process return along with the IMEI for which error triggered.
+
+- vexceptions:
+	Stored exceptions triggered on VB app end.
+	
+- ApiLog:
+	Stores request and response of an external API which is used in MSSR.
+
+- SqlErrorLog:
+	Stores any error if triggered from sql server only if try catch block is written in Stored Procedure.
+	
+
+------------------
+b. Transaction tables:---
+------------------
+- customerProducts:
+	Stores basic job information for which repair job was generated. Also includes consumer's information whose device is in for repair.
+	In this table, if statusId field's value is null that means the job is no more in repair process (closed job).
+	isExternalDevice - If this field value is set to 1 then the job has been created from consumer portal location, If set to 2 means job has been created from 
+	isDispatched - If set means device has been dispatched from RSP ro CP after repair process.
+	isJobClosedForcefully - 1. created
+							2. normally closed
+							3. cancelled
+							4. forcefully closed
+							5. scheduler closed
+	is5daysMail - Set to true if reminder email has been sent to consumer before job closure.
+	closeJobSchedular - Set to true if job has been closed by scheduler.
+	
+- customer:
+	Stores consumer's information whose device is in for repair.
+	
+- login_detail:
+	Tracks the login, (normal or force) logout datetime of an user along with their IP details.
+
+- CP_AccountCreation:
+	Stores information related to consumer while creating jobs from consumer portal.
+
+- gin:
+	Used to store order shipment information i.e. details used while dispatching device from one location to another.
+
+- dispatchToVendorHead, dispatchToVendorDetl, dispatchPickupReqHead:
+	Used while dispatching device from RSP to CP.
+	
+- ExternalCustomerProduct:
+	Stores basic job information for which repair job was generated.
+	
+- jobProblem:
+	Stores problems reported by end consumer at the time of job creation.
+	
+------------------
+c. Masters tables:---
+-------------------
+- aUsers:
+	Stores system user's information.
+
+- moneyRefundReason:
+	Resons available which can be used for money refund.
+
+- serviceLocation:
+	Information regarding serviceLocations.
+	
+- TM_Product:
+	Stores product information.
+
+- model:
+	Stores model information.
+
+- serviceLocationCourierMapping:
+	Stores mapping for serviceLocation courier.
+
+- VendorServiceLocationMapping:
+	Mapping table for CP and RSP.
+
+- cPages:
+	Stores page information and links which is displayed on UI.
+
+	
+	
+	
+==================================================
+
